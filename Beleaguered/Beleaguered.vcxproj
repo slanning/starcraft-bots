@@ -99,7 +99,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;.\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -109,7 +109,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;.\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>LADDEREXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
