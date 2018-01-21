@@ -8,6 +8,8 @@ It uses the LADDEREXE trick from https://github.com/Archiatrus/5minBot/blob/mast
 to use code for local testing (Debug) or for the LadderManager (Release).
 The code for the LadderManager part comes from CryptBot,
 https://github.com/Cryptyc/CryptBot/blob/master/CryptbotMain.cpp
+I also split the Bot class out into bot.h and bot.cpp
+instead of inlining it like the tutorial does.
 
 
 I tried to keep notes of what was needed to set things up
