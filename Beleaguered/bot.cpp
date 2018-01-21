@@ -9,7 +9,15 @@ Bot::Bot() {
 }
 
 void Bot::OnGameStart() {
-    std::cout << "Hello, World!" << std::endl;
+    std::cout << "glhf" << std::endl;
+}
+
+void Bot::OnGameEnd() {
+    std::cout << "gg" << std::endl;
+}
+
+void Bot::OnUnitCreated(const Unit* unit) {
+    std::cout << unit->unit_type << " unit created: " << unit->tag << std::endl;
 }
 
 void Bot::OnStep() {
