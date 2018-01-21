@@ -8,22 +8,30 @@ using namespace sc2;
 Bot::Bot() {
 }
 
+// void Bot::OnGameFullStart() {
+// }
+
 void Bot::OnGameStart() {
     std::cout << "glhf" << std::endl;
+	Actions()->SendChat("glhf", sc2::ChatChannel::All);
 }
 
 void Bot::OnGameEnd() {
     std::cout << "gg" << std::endl;
 }
 
-void Bot::OnUnitCreated(const Unit* unit) {
-    std::cout << unit->unit_type << " unit created: " << unit->tag << std::endl;
+void Bot::OnStep() {
+	TryBuildSupplyDepot();
+
+	TryBuildBarracks();
 }
 
-void Bot::OnStep() {
-    TryBuildSupplyDepot();
+void Bot::OnUnitDestroyed(const Unit* unit) {
+	std::cout << "Unit destroyed: " << sc2::UnitTypeToName(unit->unit_type) << " with tag " << unit->tag << std::endl;
+}
 
-    TryBuildBarracks();
+void Bot::OnUnitCreated(const Unit* unit) {
+	std::cout << "Unit created: " << sc2::UnitTypeToName(unit->unit_type) << " with tag " << unit->tag << std::endl;
 }
 
 void Bot::OnUnitIdle(const Unit* unit) {
@@ -52,6 +60,92 @@ void Bot::OnUnitIdle(const Unit* unit) {
 	default: {
 		break;
 	}
+	}
+}
+
+void Bot::OnUpgradeCompleted(UpgradeID upgrade_id) {
+	std::cout << "Upgrade completed: " << sc2::UpgradeIDToName(upgrade_id) << std::endl;
+}
+
+void Bot::OnBuildingConstructionComplete(const Unit* unit) {
+	std::cout << "Building construction completed: " << sc2::UnitTypeToName(unit->unit_type) << std::endl;
+}
+
+void Bot::OnNydusDetected() {
+	std::cout << "Nydus detected" << std::endl;  // where?
+}
+
+void Bot::OnNuclearLaunchDetected() {
+	std::cout << "Nuclear launch detected" << std::endl;  // where?
+}
+
+void Bot::OnUnitEnterVision(const Unit* unit) {
+	std::cout << "Unit entered vision: " << sc2::UnitTypeToName(unit->unit_type) << std::endl;
+}
+
+void Bot::OnError(const std::vector<ClientError>& client_errors, const std::vector<std::string>& protocol_errors) {
+	for (auto client_error : client_errors) {
+		std::string errstr;
+		switch (client_error) {
+		case ClientError::ErrorSC2: {
+			errstr = "ErrorSC2: some SC2 error (?)";
+			break;
+		}
+		case ClientError::InvalidAbilityRemap: {
+			errstr = "InvalidAbilityRemap: An ability was improperly mapped to an ability id that doesn't exist";
+			break;
+		}
+		case ClientError::InvalidResponse: {
+			errstr = "InvalidResponse: The response does not contain a field that was expected";
+			break;
+		}
+		case ClientError::NoAbilitiesForTag: {
+			errstr = "NoAbilitiesForTag: The unit does not have any abilities";
+			break;
+		}
+		case ClientError::ResponseNotConsumed: {
+			errstr = "ResponseNotConsumed: A request was made without consuming the response from the previous request, that puts this library in an illegal state";
+			break;
+		}
+		case ClientError::ResponseMismatch: {
+			errstr = "ResponseMismatch: The response received from SC2 does not match the request";
+			break;
+		}
+		case ClientError::ConnectionClosed: {
+			errstr = "ConnectionClosed: The websocket connection has prematurely closed, this could mean starcraft crashed or a websocket timeout has occurred";
+			break;
+		}
+		case ClientError::SC2UnknownStatus: {
+			errstr = "SC2UnknownStatus: some SC2 error";
+			break;
+		}
+		case ClientError::SC2AppFailure: {
+			errstr = "SC2AppFailure: SC2 has either crashed or been forcibly terminated by this library because it was not responding to requests";
+			break;
+		}
+		case ClientError::SC2ProtocolError: {
+			errstr = "SC2ProtocolError: The response from SC2 contains errors, most likely meaning the API was not used in a correct way";
+			break;
+		}
+		case ClientError::SC2ProtocolTimeout: {
+			errstr = "SC2ProtocolTimeout: A request was made and a response was not received in the amount of time given by the timeout";
+			break;
+		}
+		case ClientError::WrongGameVersion: {
+			errstr = "WrongGameVersion: A replay was attempted to be loaded in the wrong game version";
+			break;
+		}
+		default: {
+			errstr = "default: unknown error";
+			break;
+		}
+		}
+
+		std::cerr << "client error: " << errstr << std::endl;
+	}
+
+	for (auto protocol_error : protocol_errors) {
+		std::cerr << "protocol error: " << protocol_error << std::endl;
 	}
 }
 

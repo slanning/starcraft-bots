@@ -14,29 +14,36 @@ sc2::PlayerSetup CreateBot(Agent *bot) {
 
 int main(int argc, char* argv[]) {
     sc2::Coordinator coordinator;
-    coordinator.LoadSettings(argc, argv);
 
-	std::cout << "main" << std::endl;
+	if (!coordinator.LoadSettings(argc, argv)) {
+		std::cerr << "Couldn't load settings" << std::endl;
+		return(1);
+	}
+
+	std::cout << "Setting participants" << std::endl;
 
     Bot bot;
     coordinator.SetParticipants({
-        //CreateBot(&bot),
-		sc2::CreateParticipant(sc2::Race::Terran, &bot),
+        CreateBot(&bot),
+		//sc2::CreateParticipant(sc2::Race::Terran, &bot),
         CreateComputer(Race::Zerg, sc2::Easy),
     });
 
-	std::cout << "botted" << std::endl;
+	std::cout << "Launching Starcraft" << std::endl;
 
     coordinator.LaunchStarcraft();
 
-	std::cout << "launched" << std::endl;
+	std::cout << "Starting game" << std::endl;
 
 	// this value is VERY SENSITIVE and depends on having the map file in a particular place,
 	// otherwise when it launches it will just hang with a black screen....
 //    coordinator.StartGame(sc2::kMapBelShirVestigeLE);
-	coordinator.StartGame("InterloperLE.SC2Map");
+	if (!coordinator.StartGame("InterloperLE.SC2Map")) {
+		std::cerr << "Couldn't start game" << std::endl;
+		return(1);
+	}
 
-	std::cout << "started" << std::endl;
+	std::cout << "Started" << std::endl;
 
     while (coordinator.Update()) {
     }
@@ -82,7 +89,6 @@ void ParseArguments(int argc, char *argv[], ConnectionOptions &connect_options)
 	arg_parser.Get("LadderServer", connect_options.ServerAddress);
 }
 
-//*************************************************************************************************
 int main(int argc, char* argv[]) {
 	ConnectionOptions Options;
 	ParseArguments(argc, argv, Options);

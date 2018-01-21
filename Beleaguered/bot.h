@@ -15,9 +15,17 @@ private:
 
 public:
 	Bot();
+	// void OnGameFullStart() override;
 	void OnGameStart() override;
 	void OnGameEnd() override;
 	void OnStep() override;
-	void OnUnitIdle(const Unit* unit) override;
-	void OnUnitCreated(const Unit* unit) override;
+	void OnUnitDestroyed(const Unit*) override;
+	void OnUnitCreated(const Unit*) override;
+	void OnUnitIdle(const Unit*) override;
+	void OnUpgradeCompleted(UpgradeID) override;
+	void OnBuildingConstructionComplete(const Unit*) override;
+	void OnNydusDetected() override;
+	void OnNuclearLaunchDetected() override;
+	void OnUnitEnterVision(const Unit*) override;
+	void OnError(const std::vector<ClientError>& /*client_errors*/, const std::vector<std::string>& /*protocol_errors*/) override;
 };
