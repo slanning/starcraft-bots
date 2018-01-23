@@ -1,8 +1,3 @@
-Since this bot originally uses code licensed under the MIT Licence,
-anything I added here uses the same license:
-
--=-=-=-=-=-
-
 MIT Licence
 
 Copyright (c) 2018 Scott Lanning
@@ -24,35 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
--=-=-=-=-=-
-
-
-Pieces of code taken from the following,
-which all use the MIT License and therefore the "permission notice" above.
-
-
--=-=-=-=-=-
-
-https://github.com/Blizzard/s2client-api/blob/master/LICENSE
-
-s2client-api copyright notice:
-Copyright (c) 2017 Blizzard Entertainment
-
--=-=-=-=-=-
-
-https://github.com/Archiatrus/5minBot/blob/master/LICENSE
-
-5minBot copyright notice:
-Original work Copyright (c) 2017 David Churchill
-Modified work Copyright 2017 Daniel Köhntopp
-
--=-=-=-=-=-
-
-https://github.com/Cryptyc/Sc2LadderServer/blob/master/LICENSE
-I didn't technically copy anything from Sc2LadderServer, but assumed that CryptBot
-(which is intended to be an example to be copied from)
-is licensed the same as Sc2LadderServer.
-
-Sc2LadderServer copyright notice:
-Copyright (c) 2017 Martin clarke

@@ -5,6 +5,7 @@ except made into a separate Solution and with code to allow it to run
 in a LadderManager tournament, as at https://sc2ai.net/FAQ.php ,
 which runs on https://github.com/Cryptyc/Sc2LadderServer .
 It uses the LADDEREXE trick from https://github.com/Archiatrus/5minBot/blob/master/src/main.cpp
+(I think that's actually from commandcenter bot)
 to use code for local testing (Debug) or for the LadderManager (Release).
 The code for the LadderManager part comes from CryptBot,
 https://github.com/Cryptyc/CryptBot/blob/master/CryptbotMain.cpp .
