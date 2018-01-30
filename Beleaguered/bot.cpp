@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "bot.h"
-#include "sc2api/sc2_api.h"
+#include "util.h"   // dump_unit
 
 using namespace sc2;
 
@@ -13,7 +13,7 @@ Bot::Bot() {
 
 void Bot::OnGameStart() {
     std::cout << "glhf" << std::endl;
-	Actions()->SendChat("glhf", sc2::ChatChannel::All);
+	Actions()->SendChat("glhf from Beleaguered", sc2::ChatChannel::All);
 }
 
 void Bot::OnGameEnd() {
@@ -21,9 +21,18 @@ void Bot::OnGameEnd() {
 }
 
 void Bot::OnStep() {
-	TryBuildSupplyDepot();
+	uint32_t i = Observation()->GetGameLoop();
+	std::cout << "game loop: " << i << std::endl;
 
+	TryBuildSupplyDepot();
 	TryBuildBarracks();
+
+	if (i % 100 == 0) { // every 100 steps
+		Units units = Observation()->GetUnits();
+		for (const auto& u : units) {
+			dump_unit(u);
+		}
+	}
 }
 
 void Bot::OnUnitDestroyed(const Unit* unit) {
