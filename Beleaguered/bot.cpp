@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "bot.h"
-#include "util.h"   // dump_unit
+#include "util.h"   // dump_unit, dump_game_info
 
 using namespace sc2;
 
@@ -14,6 +14,9 @@ Bot::Bot() {
 void Bot::OnGameStart() {
     std::cout << "glhf" << std::endl;
 	Actions()->SendChat("glhf from Beleaguered", sc2::ChatChannel::All);
+
+	const GameInfo& game_info = Observation()->GetGameInfo();
+	dump_game_info(game_info);
 }
 
 void Bot::OnGameEnd() {
@@ -21,18 +24,19 @@ void Bot::OnGameEnd() {
 }
 
 void Bot::OnStep() {
-	uint32_t i = Observation()->GetGameLoop();
-	std::cout << "game loop: " << i << std::endl;
+	//uint32_t i = Observation()->GetGameLoop();
+	//std::cout << "game loop: " << i << std::endl;
 
 	TryBuildSupplyDepot();
 	TryBuildBarracks();
-
-	if (i % 100 == 0) { // every 100 steps
+	/*
+	if (i % 200 == 0) {
 		Units units = Observation()->GetUnits();
 		for (const auto& u : units) {
 			dump_unit(u);
 		}
 	}
+	*/
 }
 
 void Bot::OnUnitDestroyed(const Unit* unit) {

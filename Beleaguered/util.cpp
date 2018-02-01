@@ -29,7 +29,7 @@ const char* cloak_state_to_str(Unit::CloakState c) {
 	case Unit::CloakState::NotCloaked:       return "NotCloaked";
 	case Unit::CloakState::Unknown:          return "Unknown";
 	}
-	return "UNKNOWN"; // redundant?
+	return "UNKNOWN";
 }
 
 void dump_unit(const Unit *u) {
@@ -116,4 +116,78 @@ void dump_unit(const Unit *u) {
 		<< "\tbool is_alive: " << u->is_alive << std::endl
 		<< "\tlast_seen_game_loop: " << u->last_seen_game_loop << std::endl
 		;
+}
+
+const char* player_type_to_str(PlayerType t) {
+	switch (t) {
+	case PlayerType::Participant:  return "Participant";
+	case PlayerType::Computer:     return "Computer";
+	case PlayerType::Observer:     return "Observer";
+	}
+	return "UNKNOWN";
+}
+
+const char* race_to_str(Race r) {
+	switch (r) {
+	case Race::Terran:   return "Terran";
+	case Race::Zerg:     return "Zerg";
+	case Race::Protoss:  return "Protoss";
+	case Race::Random:   return "Random";
+	}
+	return "UNKNOWN";
+}
+
+const char* difficulty_to_str(Difficulty d) {
+	switch (d) {
+	case Difficulty::VeryEasy:      return "VeryEasy";
+	case Difficulty::Easy:          return "Easy";
+	case Difficulty::Medium:        return "Medium";
+	case Difficulty::MediumHard:    return "MediumHard";
+	case Difficulty::Hard:          return "Hard";
+	case Difficulty::HardVeryHard:  return "HardVeryHard";
+	case Difficulty::VeryHard:      return "VeryHard";
+	case Difficulty::CheatVision:   return "CheatVision";
+	case Difficulty::CheatMoney:    return "CheatMoney";
+	case Difficulty::CheatInsane:   return "CheatInsane";
+	}
+	return "UNKNOWN";
+}
+
+void dump_game_info(const GameInfo& g) {
+	std::cout
+		<< "map_name: " << g.map_name << std::endl
+		<< "map width x height: " << g.width << " x " << g.height << std::endl
+		//! Grid showing which cells are pathable by units.
+		//ImageData pathing_grid;
+		//! Height map of terrain.
+		//ImageData terrain_height;
+		//! Grid showing which cells can accept placement of structures.
+		//ImageData placement_grid;
+		<< "playable_min - _max: (" << g.playable_min.x << "," << g.playable_min.y << ") - (" << g.playable_max.x << "," << g.playable_max.y << ")" << std::endl
+		;
+
+	std::cout << "enemy_start_locations:" << std::endl;
+	for (auto eloc : g.enemy_start_locations) {
+		std::cout << "\t(" << eloc.x << "," << eloc.y << ")" << std::endl;
+	}
+
+	// TODO: convenience function to get one's own start location
+	// TODO: function that translates location to direction/quadrant of the map
+	std::cout << "start_locations:" << std::endl;
+	for (auto loc : g.start_locations) {
+		std::cout << "\t(" << loc.x << "," << loc.y << ")" << std::endl;
+	}
+
+	// InterfaceOptions options;
+
+	std::cout << "player_info:" << std::endl;
+	for (auto p : g.player_info) {
+		std::cout
+			<< "\tplayer_id: " << p.player_id << std::endl
+			<< "\tplayer_type: " << player_type_to_str(p.player_type) << " (" << p.player_type << ")" << std::endl
+			<< "\trace_requested: " << race_to_str(p.race_requested) << " (" << p.race_requested << ")" << std::endl
+			<< "\trace_actual: " << race_to_str(p.race_actual) << " (" << p.race_actual << ")" << std::endl
+			<< "\tdifficulty: " << difficulty_to_str(p.difficulty) << " (" << p.difficulty << ")" << std::endl
+			;
+	}
 }
