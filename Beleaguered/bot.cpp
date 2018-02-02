@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "bot.h"
 #include "util.h"   // dump_unit, dump_game_info
@@ -12,31 +13,43 @@ Bot::Bot() {
 // }
 
 void Bot::OnGameStart() {
-    std::cout << "glhf" << std::endl;
-	Actions()->SendChat("glhf from Beleaguered", sc2::ChatChannel::All);
-
 	const GameInfo& game_info = Observation()->GetGameInfo();
+
+	std::string botname = "Beleaguered";
+	std::stringstream greeting;
+	greeting << "glhf from " << botname
+		<< " (Player " << Observation()->GetPlayerID() << ", "
+		<< race_to_str( game_info.player_info[Observation()->GetPlayerID() - 1].race_requested ) << ")";
+	Actions()->SendChat(greeting.str(), sc2::ChatChannel::All);
+
 	dump_game_info(game_info);
 }
 
 void Bot::OnGameEnd() {
     std::cout << "gg" << std::endl;
+	// can ->SendChat be done here?
 }
 
 void Bot::OnStep() {
-	//uint32_t i = Observation()->GetGameLoop();
+	uint32_t i = Observation()->GetGameLoop();
 	//std::cout << "game loop: " << i << std::endl;
 
 	TryBuildSupplyDepot();
 	TryBuildBarracks();
 	/*
 	if (i % 200 == 0) {
-		Units units = Observation()->GetUnits();
-		for (const auto& u : units) {
+		for (const auto& u : Observation()->GetUnits()) {
 			dump_unit(u);
 		}
 	}
 	*/
+	/*
+	if (i % 100 == 0) {
+		dump_resource_info(Observation());
+	}
+	*/
+
+	// dump_scores(Observation()->GetScore());
 }
 
 void Bot::OnUnitDestroyed(const Unit* unit) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sc2api/sc2_api.h"
+#include "sc2api/sc2_score.h"
 
 using namespace sc2;
 
@@ -13,3 +14,7 @@ const char* player_type_to_str(PlayerType);
 const char* race_to_str(Race);
 const char* difficulty_to_str(Difficulty);
 void dump_game_info(const GameInfo&);
+
+void dump_resource_info(const ObservationInterface *);
+
+void dump_scores(const Score&);
