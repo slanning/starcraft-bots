@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "bot.h"
-#include "util.h"   // dump_unit, dump_game_info
+#include "util.h"   // dump_unit, dump_game_info, ...
 
 using namespace sc2;
 
@@ -28,6 +28,8 @@ void Bot::OnGameStart() {
 void Bot::OnGameEnd() {
     std::cout << "gg" << std::endl;
 	// can ->SendChat be done here?
+
+	dump_player_results(Observation());
 }
 
 void Bot::OnStep() {

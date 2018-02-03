@@ -16,5 +16,6 @@ const char* difficulty_to_str(Difficulty);
 void dump_game_info(const GameInfo&);
 
 void dump_resource_info(const ObservationInterface *);
+void dump_player_results(const ObservationInterface *);
 
 void dump_scores(const Score&);

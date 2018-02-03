@@ -210,6 +210,28 @@ void dump_resource_info(const ObservationInterface *o) {
 		;
 }
 
+const char* game_result_to_str(GameResult r) {
+	switch (r) {
+	case GameResult::Win:        return "Win";
+	case GameResult::Loss:       return "Loss";
+	case GameResult::Tie:        return "Tie";
+	case GameResult::Undecided:  return "Undecided";
+	}
+	return "UNKNOWN";
+}
+
+void dump_player_results(const ObservationInterface *o) {
+	const std::vector<PlayerResult>& player_results = o->GetResults();
+	std::cout << "player_results:" << std::endl;
+	for (auto p : player_results) {
+		std::cout
+			<< "\tplayer_id: " << p.player_id << std::endl
+			<< "\tresult: " << game_result_to_str(p.result) << " (" << p.result << ")" << std::endl
+			;
+	}
+
+}
+
 //////////////////////
 
 const char* score_type_to_str(ScoreType t) {
