@@ -29,6 +29,11 @@ Configuration Properties
 > C/C++ > General > Additional Include Directories:
 ..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)
 
+For some reason I later had to add this, only to the debug config, to supress some protobuf-related warnings:
+> C/C++ > Preprocessor > Preprocessor Definitions:
+_SCL_SECURE_NO_WARNINGS
+
+
 > Linker > General > Additional Library Directories:
 ..\..\s2client-api\project\lib;%(AdditionalLibraryDirectories)
 

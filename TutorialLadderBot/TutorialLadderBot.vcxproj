@@ -102,6 +102,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\..\s2client-api\project\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
