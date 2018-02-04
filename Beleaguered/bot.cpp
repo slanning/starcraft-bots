@@ -23,6 +23,13 @@ void Bot::OnGameStart() {
 	Actions()->SendChat(greeting.str(), sc2::ChatChannel::All);
 
 	dump_game_info(game_info);
+
+	// x,y of GetStartLocation corresponds to GameInfo.start_locations
+	Point3D loc = Observation()->GetStartLocation();
+	std::cout << "StartLocation(3D): (" << loc.x << "," << loc.y << "," << loc.z << ")" << std::endl;
+
+	Point2D pos = Observation()->GetCameraPos();
+	std::cout << "start CameraPos: (" << pos.x << "," << pos.y << ")" << std::endl;
 }
 
 void Bot::OnGameEnd() {
