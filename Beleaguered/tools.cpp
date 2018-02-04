@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "util.h"
+#include "tools.h"
 
 // maybe should pass Unit* for these
 const char* display_type_to_str(Unit::DisplayType t) {

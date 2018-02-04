@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "bot.h"
-#include "util.h"   // dump_unit, dump_game_info, ...
+#include "tools.h"   // dump_unit, dump_game_info, ...
 
 using namespace sc2;
 
