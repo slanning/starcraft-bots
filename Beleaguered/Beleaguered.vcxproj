@@ -101,7 +101,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\..\s2client-api\project\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -112,7 +112,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\s2client-api\contrib\protobuf\src;..\..\s2client-api\include;..\..\s2client-api\contrib\civetweb\include;..\..\s2client-api\contrib\SDL-mirror\include;..\..\s2client-api\build\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LADDEREXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LADDEREXE;WIN32;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -121,13 +121,89 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AutoObserver\CameraModule.cpp" />
+    <ClCompile Include="BaseLocation.cpp" />
+    <ClCompile Include="BaseLocationManager.cpp" />
     <ClCompile Include="bot.cpp" />
+    <ClCompile Include="BotAssert.cpp" />
+    <ClCompile Include="BotConfig.cpp" />
+    <ClCompile Include="Building.cpp" />
+    <ClCompile Include="BuildingData.cpp" />
+    <ClCompile Include="BuildingManager.cpp" />
+    <ClCompile Include="BuildingPlacer.cpp" />
+    <ClCompile Include="BuildOrder.cpp" />
+    <ClCompile Include="BuildOrderQueue.cpp" />
+    <ClCompile Include="BuildType.cpp" />
+    <ClCompile Include="CCBot.cpp" />
+    <ClCompile Include="CombatCommander.cpp" />
+    <ClCompile Include="DistanceMap.cpp" />
+    <ClCompile Include="Drawing.cpp" />
+    <ClCompile Include="GameCommander.cpp" />
+    <ClCompile Include="HarassManager.cpp" />
+    <ClCompile Include="JSONTools.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapTools.cpp" />
+    <ClCompile Include="MeleeManager.cpp" />
+    <ClCompile Include="Micro.cpp" />
+    <ClCompile Include="MicroManager.cpp" />
+    <ClCompile Include="pathPlaning.cpp" />
+    <ClCompile Include="ProductionManager.cpp" />
+    <ClCompile Include="RangedManager.cpp" />
+    <ClCompile Include="ScoutManager.cpp" />
+    <ClCompile Include="SiegeManager.cpp" />
+    <ClCompile Include="Squad.cpp" />
+    <ClCompile Include="SquadData.cpp" />
+    <ClCompile Include="SquadOrder.cpp" />
+    <ClCompile Include="StrategyManager.cpp" />
+    <ClCompile Include="TechTree.cpp" />
     <ClCompile Include="tools.cpp" />
+    <ClCompile Include="UnitData.cpp" />
+    <ClCompile Include="UnitInfoManager.cpp" />
+    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="WorkerData.cpp" />
+    <ClCompile Include="WorkerManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoObserver\CameraModule.h" />
     <ClInclude Include="bot.h" />
+    <ClInclude Include="BotAssert.h" />
+    <ClInclude Include="BotConfig.h" />
+    <ClInclude Include="Building.h" />
+    <ClInclude Include="BuildingData.h" />
+    <ClInclude Include="BuildingManager.h" />
+    <ClInclude Include="BuildingPlacer.h" />
+    <ClInclude Include="BuildOrder.h" />
+    <ClInclude Include="BuildOrderQueue.h" />
+    <ClInclude Include="BuildType.h" />
+    <ClInclude Include="CCBot.h" />
+    <ClInclude Include="CombatCommander.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="DistanceMap.h" />
+    <ClInclude Include="Drawing.h" />
+    <ClInclude Include="GameCommander.h" />
+    <ClInclude Include="HarassManager.h" />
+    <ClInclude Include="JSONTools.h" />
+    <ClInclude Include="MapTools.h" />
+    <ClInclude Include="MeleeManager.h" />
+    <ClInclude Include="Micro.h" />
+    <ClInclude Include="MicroManager.h" />
+    <ClInclude Include="pathPlaning.h" />
+    <ClInclude Include="ProductionManager.h" />
+    <ClInclude Include="RangedManager.h" />
+    <ClInclude Include="ScoutManager.h" />
+    <ClInclude Include="SiegeManager.h" />
+    <ClInclude Include="Squad.h" />
+    <ClInclude Include="SquadData.h" />
+    <ClInclude Include="SquadOrder.h" />
+    <ClInclude Include="StrategyManager.h" />
+    <ClInclude Include="TechTree.h" />
+    <ClInclude Include="Timer.hpp" />
     <ClInclude Include="tools.h" />
+    <ClInclude Include="UnitData.h" />
+    <ClInclude Include="UnitInfoManager.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="WorkerData.h" />
+    <ClInclude Include="WorkerManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
