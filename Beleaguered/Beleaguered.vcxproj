@@ -183,6 +183,7 @@
     <ClInclude Include="GameCommander.h" />
     <ClInclude Include="HarassManager.h" />
     <ClInclude Include="JSONTools.h" />
+    <ClInclude Include="LadderInterface.h" />
     <ClInclude Include="MapTools.h" />
     <ClInclude Include="MeleeManager.h" />
     <ClInclude Include="Micro.h" />

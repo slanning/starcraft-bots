@@ -260,5 +260,8 @@
     <ClInclude Include="AutoObserver\CameraModule.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="LadderInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
