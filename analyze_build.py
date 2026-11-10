@@ -652,3 +652,103 @@ Time Supply Capped: 0:33
 
 
 """
+
+"""
+
+Me: Is that all useful? Would you need more info? What can you infer from that info? (some of its reply depends on our previous chat)
+
+
+GPT: [Think on]
+
+Yes. This is enough to give useful feedback on a five-minute macro drill. You don't need to provide the raw replay or the command-ability diagnostics for a normal review.
+
+The report already tells me quite a bit.
+
+## What I can infer from this run
+
+### 1. Your production grew substantially during the five minutes
+
+At the end of the replay, you had:
+
+- 46 SCVs (12 starting workers plus 34 produced)
+- 26 Marines
+- 2 Command Centers
+- 5 completed Barracks
+- 6 completed Supply Depots
+
+That's a substantial production setup for a five-minute drill. The second Command Center started at 1:39 and completed at 2:50, taking 71 seconds.
+
+All five Barracks were completed by 4:33. The report also shows Marine completions becoming more frequent as more Barracks came online.
+For example, you completed Marines at 4:16, 4:18, 4:19, and 4:20, followed by another cluster at 4:34–4:38.
+
+That suggests you were successfully getting multiple production facilities working in parallel.
+
+### 2. Your worker production continued throughout the run
+
+The SCV completion events show a clear increase in production frequency after the second Command Center became available.
+
+You completed:
+
+- 21 SCVs by approximately 2:00
+- 30 by approximately 3:20
+- 38 by approximately 4:07
+- 46 by the end
+
+The closely spaced completions later in the game are consistent with both Command Centers producing SCVs.
+
+That's useful because it lets us look at worker production as a timeline, rather than just checking the final worker count.
+
+### 3. Supply management is one area worth examining
+
+Your final supply was 78/78, with 33 seconds spent supply capped.
+
+The building events show seven Supply Depots started, but only six completed. The last one started at 4:46, so it was apparently still under construction when the replay ended.
+
+The 33-second figure tells us you spent a meaningful amount of time at the supply limit. It doesn't tell us exactly how much production was delayed, though.
+We would need to look at the timing of the supply blocks alongside your production events to understand their impact.
+
+### 4. Your mineral bank fluctuated considerably
+
+| Time  | Mineral bank |
+| ----- | ------------ |
+| 2:00  | 100          |
+| 3:00  | 190          |
+| 4:00  | 85           |
+| 5:00  | 105          |
+| Final | 135          |
+
+You accumulated a larger bank around 3:00, then spent minerals more actively during the next minute.
+That's useful information, although four snapshots aren't enough to identify exactly when you were accumulating resources instead of spending them.
+
+## What the report cannot tell me
+
+There are a few important things it doesn't capture:
+
+- Worker distribution: How many SCVs were working at each mineral line? A total of 46 doesn't tell us whether those workers were distributed effectively.
+- Production interruptions: The inferred start times help show production cadence, but they don't directly tell us whether you had idle buildings or whether a particular command was delayed.
+- Why you accumulated resources: The snapshots show the mineral bank, but not exactly what you were looking at or trying to build when it increased.
+
+Also, remember that the production start times are inferred by subtracting the unit's training duration from its completion time.
+They're useful approximations, not direct observations of the training command. Events displayed at the same whole-second timestamp may have occurred in a slightly different order.
+
+## What I'd add to the report eventually
+
+I wouldn't add much right now. The current report is already useful.
+
+The single most valuable addition would probably be worker distribution snapshots at 2:00, 3:00, 4:00, and 5:00. For example:
+
+```
+WORKER DISTRIBUTION
+2:00  Main: 20/16 | Expansion: 0/16
+3:00  Main: 21/16 | Expansion: 8/16
+4:00  Main: 21/16 | Expansion: 13/16
+5:00  Main: 21/16 | Expansion: 16/16
+```
+
+Those numbers are illustrative, not values from your replay. They would help distinguish simply producing lots of SCVs from actually putting those workers to work.
+
+My recommendation: Keep the report as it is for now. It's already enough for us to review building timing, production cadence, worker growth, supply management, and mineral spending.
+We can use it to compare runs and identify one improvement at a time, without turning your practice into a complicated optimization exercise.
+
+"""
+
