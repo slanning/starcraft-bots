@@ -1,4 +1,5 @@
 # note: this has some things specific to my current macro practice/drill for Terran
+# Includes Orbital Command completion, MULE lifecycle, and nearby mineral-economy tracking.
 # so...sorry I didn't vibe-code other SC2 factions
 
 # activate venv: source venv/Scripts/activate
@@ -21,8 +22,40 @@ import sys
 import mpyq
 from s2protocol import versions
 
+
+def make_unit_key(event):
+    """Return a unit's (tag index, recycle) identity, or None if unavailable."""
+    tag_index = event.get('m_unitTagIndex')
+    if tag_index is None:
+        return None
+    return (tag_index, event.get('m_unitTagRecycle', 0))
+
+
+def format_unit_ref(unit_key):
+    if unit_key is None:
+        return "unknown unit"
+    tag_index, recycle = unit_key
+    return f"tag {tag_index} (recycle {recycle})"
+
+
+def format_game_time(seconds):
+    minutes = int(seconds // 60)
+    return f"{minutes:02d}:{seconds % 60:05.2f}"
+
+
+def nearest_sample(samples, target_seconds, *, before=None, after=None):
+    """Find the sample nearest target_seconds, optionally limiting its time range."""
+    candidates = [
+        sample for sample in samples
+        if (before is None or sample['seconds'] <= before)
+        and (after is None or sample['seconds'] >= after)
+    ]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda sample: abs(sample['seconds'] - target_seconds))
+
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("Usage: python analyze_build.py <SC2 username> <replay file name>")
         sys.exit(1)
     analyze_macro_drill(sys.argv[2], sys.argv[1], debug=False)
@@ -60,6 +93,10 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
     # 4. Decode Tracker Events
     tracker_data = archive.read_file('replay.tracker.events')
     tracker_events = list(protocol.decode_replay_tracker_events(tracker_data))
+    max_tracker_loop = max(
+        (event.get('_gameloop', 0) for event in tracker_events),
+        default=0
+    )
 
     LOOPS_PER_SEC = 22.4   # Standard for 'Faster' game speed
     
@@ -71,6 +108,18 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
     
     target_minutes = {120: "2:00", 180: "3:00", 240: "4:00", 300: "5:00"}
     snapshots = {}
+
+    # Keep all PlayerStats samples in memory so we can inspect the economy
+    # immediately before and after each MULE call-down.
+    resource_timeline = []
+
+    # Orbital upgrades are recorded when a Command Center changes unit type.
+    orbital_upgrade_events = []
+    orbital_labels = {}
+
+    # MULE records use (tag index, recycle) so reused unit tags cannot collide.
+    mule_records = {}
+    mule_order = []
     
     final_minerals = 0
     final_supply_used = 0
@@ -116,20 +165,26 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
         
         p_id_stats = event.get('m_playerId')
         control_id = event.get('m_controlPlayerId')
-        tag_idx    = event.get('m_unitTagIndex')
+        tag_idx = event.get('m_unitTagIndex')
+        unit_key = make_unit_key(event)
         
         is_stats_match = (p_id_stats == my_player_id_1based)
         is_unit_match = (control_id == my_player_id_1based)
 
-        # Cache types and builders globally since UnitDone drops player ID metrics completely
-        if tag_idx is not None:
+        # Cache unit types and ownership. UnitDone/UnitDied events may omit
+        # owner and type fields, so retain those details using the full tag
+        # identity (tag index + recycle number).
+        previous_unit_type = (
+            unit_tag_registry.get(unit_key) if unit_key is not None else None
+        )
+        if unit_key is not None:
             unit_type_raw = event.get('m_unitTypeName', b'')
             if isinstance(unit_type_raw, bytes):
                 unit_type_raw = unit_type_raw.decode('utf-8', errors='ignore')
             if unit_type_raw:
-                unit_tag_registry[tag_idx] = unit_type_raw
+                unit_tag_registry[unit_key] = unit_type_raw
             if is_unit_match:
-                building_owner_registry[tag_idx] = True
+                building_owner_registry[unit_key] = True
 
         if debug and loop > 0 and is_unit_match:
             pprint.pprint(event)
@@ -140,6 +195,16 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
             food_used = stats.get('m_scoreValueFoodUsed', 0) // 4096
             food_made = stats.get('m_scoreValueFoodMade', 0) // 4096
             minerals = stats.get('m_scoreValueCurrentMinerals', stats.get('m_scoreValueMineralsCurrent', 0))
+            mineral_collection_rate = stats.get('m_scoreValueMineralsCollectionRate')
+            workers_active = stats.get('m_scoreValueWorkersActiveCount')
+
+            resource_timeline.append({
+                'loop': loop,
+                'seconds': seconds,
+                'minerals': minerals,
+                'mineral_collection_rate': mineral_collection_rate,
+                'workers_active': workers_active,
+            })
 
             is_currently_capped = (food_used >= food_made and food_made > 0)
 
@@ -172,12 +237,16 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
             final_supply_max = food_made
 
         # Process Building / Unit Events (Ignoring loop 0 map initialization)
-        elif ('UnitInit' in evt_type or 'UnitBorn' in evt_type or 'UnitDone' in evt_type) and loop > 0:
-            # Check either explicit matching or cached tag lookup for owner state
-            if not is_unit_match and not building_owner_registry.get(tag_idx, False):
+        elif any(name in evt_type for name in (
+            'UnitInit', 'UnitBorn', 'UnitDone', 'UnitTypeChange', 'UnitDied'
+        )) and loop > 0:
+            # Check either explicit matching or cached tag lookup for owner state.
+            if unit_key is None or (
+                not is_unit_match and not building_owner_registry.get(unit_key, False)
+            ):
                 continue
 
-            unit_type = unit_tag_registry.get(tag_idx, 'Unknown')
+            unit_type = unit_tag_registry.get(unit_key, 'Unknown')
             if debug:
                 print("unit_type: " + unit_type)
             
@@ -236,9 +305,52 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
                 unit_production_events.append((loop, time_str, unit_event_desc))
 
             # ----------------------------------------------------
-            # 2. BUILDING EVENTS (Starts & Completions)
+            # 2. ORBITAL COMMAND AND MULE TRACKING
             # ----------------------------------------------------
-            is_building = unit_type and not any(u in unit_type for u in ['SCV', 'Marine', 'Probe', 'Zealot', 'Stalker', 'Observer', 'Sentry'])
+            if (
+                'UnitTypeChange' in evt_type
+                and previous_unit_type == 'CommandCenter'
+                and unit_type == 'OrbitalCommand'
+            ):
+                orbital_number = len(orbital_upgrade_events) + 1
+                orbital_label = f"Orbital {orbital_number}"
+                orbital_labels[unit_key] = orbital_label
+                orbital_upgrade_events.append({
+                    'loop': loop,
+                    'seconds': seconds,
+                    'unit_key': unit_key,
+                    'label': orbital_label,
+                })
+
+            if 'UnitBorn' in evt_type and unit_type == 'MULE':
+                creator_index = event.get('m_creatorUnitTagIndex')
+                creator_recycle = event.get('m_creatorUnitTagRecycle', 0)
+                creator_key = (
+                    (creator_index, creator_recycle)
+                    if creator_index is not None else None
+                )
+                mule_records[unit_key] = {
+                    'unit_key': unit_key,
+                    'born_loop': loop,
+                    'born_seconds': seconds,
+                    'creator_key': creator_key,
+                    'x': event.get('m_x'),
+                    'y': event.get('m_y'),
+                    'died_loop': None,
+                    'died_seconds': None,
+                }
+                mule_order.append(unit_key)
+
+            elif 'UnitDied' in evt_type and unit_type == 'MULE':
+                mule_record = mule_records.get(unit_key)
+                if mule_record is not None and mule_record['died_loop'] is None:
+                    mule_record['died_loop'] = loop
+                    mule_record['died_seconds'] = seconds
+
+            # ----------------------------------------------------
+            # 3. BUILDING EVENTS (Starts & Completions)
+            # ----------------------------------------------------
+            is_building = unit_type and not any(u in unit_type for u in ['SCV', 'Marine', 'MULE', 'Probe', 'Zealot', 'Stalker', 'Observer', 'Sentry'])
 
             if is_building:
                 # Identify the building category once, then count its start
@@ -343,6 +455,108 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
             f"{under_construction} under construction | "
             f"{started} started"
         )
+
+    print("\nORBITAL COMMANDS")
+    if orbital_upgrade_events:
+        for upgrade in orbital_upgrade_events:
+            print(
+                f"{format_game_time(upgrade['seconds'])}  "
+                f"{upgrade['label']} completed (Command Center -> Orbital Command; "
+                f"{format_unit_ref(upgrade['unit_key'])})"
+            )
+        print("Upgrade start times are not yet tracked; these are confirmed completion events.")
+    else:
+        print("No Command Center -> Orbital Command transformations recorded.")
+
+    print("\nMULE EVENTS")
+    if mule_order:
+        for mule_key in mule_order:
+            mule = mule_records[mule_key]
+            creator_key = mule['creator_key']
+            creator_label = orbital_labels.get(creator_key)
+            if creator_label:
+                creator_text = f"{creator_label} ({format_unit_ref(creator_key)})"
+            else:
+                creator_text = format_unit_ref(creator_key)
+            position = (
+                f"({mule['x']}, {mule['y']})"
+                if mule['x'] is not None and mule['y'] is not None
+                else "unknown"
+            )
+            print(
+                f"{format_game_time(mule['born_seconds'])}  MULE created | "
+                f"{format_unit_ref(mule_key)} | Creator: {creator_text} | "
+                f"Position: {position}"
+            )
+    else:
+        print("No MULE creation events recorded.")
+
+    print("\nMULE LIFETIMES")
+    replay_end_seconds = max(final_seconds, max_tracker_loop / LOOPS_PER_SEC)
+    if mule_order:
+        for mule_key in mule_order:
+            mule = mule_records[mule_key]
+            if mule['died_seconds'] is not None:
+                lifetime = mule['died_seconds'] - mule['born_seconds']
+                status = (
+                    f"{lifetime:.1f}s observed; removed at "
+                    f"{format_game_time(mule['died_seconds'])}"
+                )
+            else:
+                lifetime = max(0.0, replay_end_seconds - mule['born_seconds'])
+                status = f"still present at replay end; at least {lifetime:.1f}s observed"
+            print(f"{format_unit_ref(mule_key)}: {status}")
+    else:
+        print("No MULE lifetimes to report.")
+
+    print("\nMINERAL ECONOMY AROUND MULE CALL-DOWNS")
+    print("Collection-rate values are shown as decoded; no unit or scale conversion is applied.")
+    if mule_order and resource_timeline:
+        for mule_key in mule_order:
+            mule = mule_records[mule_key]
+            event_seconds = mule['born_seconds']
+            before_sample = nearest_sample(
+                resource_timeline,
+                event_seconds - 10.0,
+                before=event_seconds
+            )
+            after_sample = nearest_sample(
+                resource_timeline,
+                event_seconds + 30.0,
+                after=event_seconds
+            )
+
+            print(
+                f"{format_game_time(event_seconds)}  MULE {format_unit_ref(mule_key)}"
+            )
+            if before_sample is None or after_sample is None:
+                print("  Not enough PlayerStats samples before/after this call-down.")
+                continue
+
+            def describe_resource_sample(label, sample):
+                rate = sample.get('mineral_collection_rate')
+                rate_text = (
+                    f"{rate:.0f} (raw replay value)" if isinstance(rate, (int, float))
+                    else "unavailable"
+                )
+                workers = sample.get('workers_active')
+                workers_text = f", active workers: {workers}" if workers is not None else ""
+                sample_time = format_game_time(sample['seconds'])
+                print(
+                    f"  {label}: {sample_time} | bank: {sample['minerals']} | "
+                    f"collection rate: {rate_text}{workers_text}"
+                )
+
+            describe_resource_sample("About 10s before", before_sample)
+            describe_resource_sample("About 30s after", after_sample)
+            bank_delta = after_sample['minerals'] - before_sample['minerals']
+            elapsed = after_sample['seconds'] - before_sample['seconds']
+            print(
+                f"  Net bank change: {bank_delta:+} minerals over {elapsed:.1f}s "
+                f"(income minus spending; not MULE-only income)"
+            )
+    else:
+        print("No MULEs or PlayerStats timeline available.")
 
     print(f"\nUNIT PRODUCTION")
     print(f"SCVs produced:    {scv_count} (plus 12 started with)")
