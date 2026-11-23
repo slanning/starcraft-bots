@@ -5,6 +5,17 @@
 # example execution:
 # $ python analyze_build.py <SC2 username> "C:\Users\<...>\Replays\Multiplayer\Old Sun Temple LE (2).SC2Replay"
 # for installing s2protocol see end of this file
+
+# When new SC2 protocol versions come out, you might get an error like "ImportError: No module named 'protocol98745'"
+# In the s2protocol repo, `git pull` and `python setup.py install`. Now we have to refresh the venv. In sc2-parser/:
+# deactivate
+# rm -r venv/
+# py -3.11 -m venv venv
+# source venv/Scripts/activate
+# pip install s2protocol mpyq
+# python.exe -m pip install --upgrade pip
+
+
 import pprint
 import sys
 import mpyq
@@ -65,9 +76,13 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
     final_supply_used = 0
     final_supply_max = 0
     final_seconds = 0
-    num_supply_depots = 0
-    num_barracks = 0
-    num_ccs = 1
+    # Track building starts and completions separately.
+    # The starting Command Center is included in both totals.
+    building_counts = {
+        "Supply Depots": {"started": 0, "completed": 0},
+        "Barracks": {"started": 0, "completed": 0},
+        "Command Centers": {"started": 1, "completed": 1},
+    }
 
     food_used = 0
     food_made = 0
@@ -226,18 +241,25 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
             is_building = unit_type and not any(u in unit_type for u in ['SCV', 'Marine', 'Probe', 'Zealot', 'Stalker', 'Observer', 'Sentry'])
 
             if is_building:
+                # Identify the building category once, then count its start
+                # and completion events separately.
+                building_key = None
+                if 'SupplyDepot' in unit_type:
+                    building_key = "Supply Depots"
+                elif 'Barracks' in unit_type:
+                    building_key = "Barracks"
+                elif 'CommandCenter' in unit_type:
+                    building_key = "Command Centers"
+
                 if 'UnitInit' in evt_type:
                     building_events.append((time_str, f"{unit_type} started (supply: {food_used}/{food_made}, SCVs: {total_scv_count} Marines: {marine_count})"))
+                    if building_key is not None:
+                        building_counts[building_key]["started"] += 1
 
                 elif 'UnitDone' in evt_type:
                     building_events.append((time_str, f"{unit_type} completed (supply: {food_used}/{food_made}, SCVs: {total_scv_count} Marines: {marine_count})"))
-                    
-                    if 'SupplyDepot' in unit_type:
-                        num_supply_depots += 1
-                    elif 'Barracks' in unit_type:
-                        num_barracks += 1
-                    elif 'CommandCenter' in unit_type:
-                        num_ccs += 1
+                    if building_key is not None:
+                        building_counts[building_key]["completed"] += 1
 
     if my_user_id is not None:
         game_data = archive.read_file('replay.game.events')
@@ -312,9 +334,15 @@ def analyze_macro_drill(replay_path, my_player_name, debug=True):
         print("No matching unit production events recorded.")
 
     print("\nBUILDINGS")
-    print(f"Supply Depots: {num_supply_depots}")
-    print(f"Barracks: {num_barracks}")
-    print(f"CommandCenters: {num_ccs}")
+    for building_name, counts in building_counts.items():
+        started = counts["started"]
+        completed = counts["completed"]
+        under_construction = started - completed
+        print(
+            f"{building_name}: {completed} completed | "
+            f"{under_construction} under construction | "
+            f"{started} started"
+        )
 
     print(f"\nUNIT PRODUCTION")
     print(f"SCVs produced:    {scv_count} (plus 12 started with)")
